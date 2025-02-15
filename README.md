@@ -1,10 +1,26 @@
 # Proving Quantum Theorems in Coq
 
+Proving interesting theorems from [[1]](#1) and [[2]](#2) in Coq.
+
 ## Building instructions
 
-These proofs rely on [QuantumLib](https://github.com/inQWIRE/QuantumLib).
+Install the [opam](https://opam.ocaml.org/) package manager.
 
-TODO
+The proofs rely on [QuantumLib](https://github.com/inQWIRE/QuantumLib).
+
+To install it and an appropriate version of coq on your system run:
+
+```shell
+opam repo add coq-released https://coq.inria.fr/opam/released
+opam update
+opam install coq.8.18.0 coq-quantumlib
+```
+
+To build the project navigate the the root folder and run:
+
+```shell
+make
+```
 
 ## Documentation
 
@@ -25,7 +41,7 @@ TODO
 
 * Phase Kickback on CNOT gate
 
-   The proof is trivial thanks to [QuantumLib](https://github.com/inQWIRE/QuantumLib) automation tactics.
+   The proof is trivial thanks to [QuantumLib](https://github.com/inQWIRE/QuantumLib)'s automation tactics.
 
 ## References
 
