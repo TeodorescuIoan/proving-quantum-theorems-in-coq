@@ -1,0 +1,5 @@
+-Q theories PQTC
+
+theories/HeisenbergUncertainty.v
+theories/NoCloningTheorem.v
+theories/PhaseKickback.v

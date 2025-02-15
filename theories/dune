@@ -1,0 +1,4 @@
+(coq.theory
+ (name PQTC)
+ (package proving-quantum-theorems-in-coq))
+
