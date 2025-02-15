@@ -16,7 +16,7 @@ opam update
 opam install coq.8.18.0 coq-quantumlib
 ```
 
-To build the project navigate the the root folder and run:
+To build the project navigate to the root folder and run:
 
 ```shell
 make
