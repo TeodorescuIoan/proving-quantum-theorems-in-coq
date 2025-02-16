@@ -107,8 +107,7 @@ Proof.
   intros *.
   unfold hermitian, commutator.
   rewrite 
-    !Mplus_adjoint, !Mmult_adjoint,
-    Mscale_plus_distr_r, Mscale_adj,
+    !Mplus_adjoint, !Mmult_adjoint, Mscale_plus_distr_r, Mscale_adj,
     Mscale_mult_dist_r, Mplus_comm.
   intros -> ->.
   autorewrite with C_db.
@@ -135,12 +134,10 @@ Lemma variance_norm_sq_eq : forall {n : nat} (x : Vector n) (A : Square n),
 Proof.
   intros.
   unfold variance, deviation, expectedval, Mmult_n.
-  rewrite 
-    Mmult_1_r, Mmult_assoc, inner_product_adjoint_switch,
-    (hermitian_deviation_generalized A); auto;
-  [ now apply hermitian_implies_real_inner_product
-  | apply WF_plus; auto; repeat apply WF_scale; apply WF_I
-  ].
+  rewrite Mmult_1_r, Mmult_assoc; auto with wf_db.
+  rewrite inner_product_adjoint_switch.
+  rewrite (hermitian_deviation_generalized A); auto.
+  now apply hermitian_implies_real_inner_product.
 Qed.
 
 Lemma commutator_deviation_var_eq :
@@ -150,15 +147,14 @@ Lemma commutator_deviation_var_eq :
 Proof.
   intros.
   unfold commutator, deviation.
-  now rewrite 
+  rewrite 
     !Mmult_plus_distr_r, !Mmult_plus_distr_l,
     !Mscale_plus_distr_r, !Mmult_plus_distr_r, 
     !Mscale_assoc, !Mscale_mult_dist_r, 
     <- !Mplus_assoc, !Mscale_mult_dist_l, 
-    !Mmult_1_r, !Mmult_1_l; auto;
-  [ prep_matrix_equality; lca 
-  | apply WF_I
-  ].
+    !Mmult_1_r, !Mmult_1_l; auto with wf_db.
+  prep_matrix_equality.
+  now lca.
 Qed.
 
 (** Proof of the hermitian version of Heisenberg's uncertainty principle *)
@@ -187,17 +183,16 @@ Proof.
   rewrite <- (Mscale_1_l _ _ (_ _ A × _ _ B)), <- Mscale_plus_distr_l.
   autorewrite with C_db.
   rewrite Cmod_4_sqr_inv_2. 
-  rewrite <- Rpow_mult_distr.
-  rewrite <- Cmod_mult.
-  rewrite <- inner_product_scale_r.
-  rewrite <- Mscale_mult_dist_l, Mscale_assoc, Cinv_l, Mscale_1_l 
+  rewrite <- Rpow_mult_distr, <- Cmod_mult, <- inner_product_scale_r.
+  rewrite 
+    <- Mscale_mult_dist_l, Mscale_assoc, Cinv_l, Mscale_1_l 
     by (intros [=]; lra).
   rewrite inner_product_adjoint_l.
   unfold deviation.
   now rewrite (hermitian_deviation_generalized A (⟨ x, A × x ⟩)); auto;
   [ rewrite <- Mmult_assoc
   | now apply hermitian_implies_real_inner_product
-  ]; trivial.
+  ].
 Qed.
 
 Theorem Heisenberg_Uncertainty_Principle : 
@@ -215,7 +210,7 @@ Proof.
   [ rewrite <- Rplus_0_l at 1; apply Rplus_le_compat_r, pow2_ge_0
   | apply hermitian_deviation_anticommutator
   | apply hermitian_neg_i_commutator
-  ]; trivial.
+  ].
 Qed.
 
 Local Close Scope R_scope.
