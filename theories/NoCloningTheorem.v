@@ -3,13 +3,11 @@ Require Import Psatz.
 
 Section sec_no_cloning.
 
-(* TODO: add strict version of theorem *)
 Theorem No_Cloning_Theorem {n : nat} :
   ~ exists (U : Square (n*n)), forall (z x : Vector n),
       U × (x ⊗ z) = x ⊗ x.
 Proof.
-  apply Classical_Pred_Type.all_not_not_ex.
-  intros U HClone.
+  intros [U HClone].
   generalize HClone.
   apply Classical_Pred_Type.ex_not_not_all.
   eexists ?[zero].
