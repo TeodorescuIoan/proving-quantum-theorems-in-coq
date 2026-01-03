@@ -49,7 +49,7 @@ make all
    is specified by:
 
    ```math
-   U (| \phi \rangle \otimes 0) = | \phi \rangle \otimes | \phi \rangle $$
+   U (| \phi \rangle \otimes 0) = | \phi \rangle \otimes | \phi \rangle
    ```
 
    The proof shows such an operator does not exist.
