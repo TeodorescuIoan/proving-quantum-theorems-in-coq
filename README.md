@@ -1,47 +1,62 @@
 # Proving Quantum Theorems in Coq
 
-Proving interesting theorems from [[1]](#1) and [[2]](#2) in Coq.
+Proving interesting theorems from [[1]](#1) and [[2]](#2) in Rocq (previously Coq).
 
 ## Building instructions
 
 Install the [opam](https://opam.ocaml.org/) package manager.
 
+Create an opam switch (recommended when working with Rocq).
+
+```shell
+opam switch create 5.4.0
+eval $(opam env)
+```
+
+The argument given to create is the OCaml compiler version.
+
 The proofs rely on [QuantumLib](https://github.com/inQWIRE/QuantumLib).
 
-To install it and an appropriate version of coq on your system run:
+To install it and the other dependencies on your system navigate to the root of the project and run:
 
 ```shell
 opam repo add coq-released https://coq.inria.fr/opam/released
 opam update
-opam install coq.8.18.0 coq-quantumlib
+opam install . --deps-only
 ```
 
-To build the project navigate to the root folder and run:
+Finally, to build the project run:
 
 ```shell
-make
+make all
 ```
 
 ## Documentation
 
-* Heisenberg's Uncertainty Principle
+### Heisenberg's Uncertainty Principle
 
-   Proving the hermitian version of Heisenberg's uncertainty principle [[1]](#1):
+   Proving the hermitian version of the uncertainty principle [[1]](#1):
 
-   $$Var_x(A) Var_x(B) \ge \frac{1}{4} \mid \langle x \mid \[A,B\]x\rangle \mid^2$$
+   Let $A$, $B$ two hermitian operators and $x$ a quantum state.
 
-* No-Cloning Theorem
+   ```math
+   Var_x(A) Var_x(B) \ge \frac{1}{4} | \langle x | [A,B]x\rangle |^2
+   ```
 
-   A quantum state cloning operator $U$ applied to an arbitrary state $\mid \phi \rangle$
+### No-Cloning Theorem
+
+   A quantum state cloning operator $U$ applied to an arbitrary state $| \phi \rangle$
    is specified by:
 
-   $$U (\mid \phi \rangle \otimes 0) = \mid \phi \rangle \otimes \mid \phi \rangle $$
+   ```math
+   U (| \phi \rangle \otimes 0) = | \phi \rangle \otimes | \phi \rangle $$
+   ```
 
    The proof shows such an operator does not exist.
 
-* Phase Kickback on CNOT gate
+### Phase Kickback on CNOT gate
 
-   The proof is trivial thanks to [QuantumLib](https://github.com/inQWIRE/QuantumLib)'s automation tactics.
+   Surrounding a CNOT gate by Hadamard gates at each end reverses the control bit.
 
 ## References
 
