@@ -37,7 +37,7 @@ make all
 
    Proving the hermitian version of the uncertainty principle [[1]](#1):
 
-   Let $A$, $B$ two hermitian operators and $x$ a quantum state.
+   Let $A$, $B$ two hermitian operators and $| x \rangle$ a quantum state.
 
    ```math
    Var_x(A) Var_x(B) \ge \frac{1}{4} | \langle x | [A,B]x\rangle |^2
