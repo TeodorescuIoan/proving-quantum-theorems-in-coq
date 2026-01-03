@@ -83,10 +83,9 @@ Proof.
   intros.
   apply plus_hermitian.
   auto.
-  now apply (scale_hermitian);
-  [ simpl; lra 
-  | apply I_hermitian
-  ].
+  apply (scale_hermitian).
+  - now simpl; lra.
+  - now apply I_hermitian.
 Qed.
 
 (* Δx(A) * Δx(B) + Δx(B) * Δx(A) is hermitian *)
@@ -189,10 +188,9 @@ Proof.
     by (intros [=]; lra).
   rewrite inner_product_adjoint_l.
   unfold deviation.
-  now rewrite (hermitian_deviation_generalized A (⟨ x, A × x ⟩)); auto;
-  [ rewrite <- Mmult_assoc
-  | now apply hermitian_implies_real_inner_product
-  ].
+  rewrite (hermitian_deviation_generalized A (⟨ x, A × x ⟩)); auto.
+  - now rewrite <- Mmult_assoc.
+  - now apply hermitian_implies_real_inner_product.
 Qed.
 
 Theorem Heisenberg_Uncertainty_Principle : 
@@ -206,11 +204,10 @@ Proof.
   generalize (Cauchy_Schwartz_ver1 (deviation x A × x) (deviation x B × x)).
   rewrite interm_Uncertainty_Principle; auto.
   apply Rle_trans, Rmult_le_compat_l; [lra | ].
-  now rewrite Cmod_pow2_reals; try apply hermitian_implies_real_inner_product;
-  [ rewrite <- Rplus_0_l at 1; apply Rplus_le_compat_r, pow2_ge_0
-  | apply hermitian_deviation_anticommutator
-  | apply hermitian_neg_i_commutator
-  ].
+  rewrite Cmod_pow2_reals; try apply hermitian_implies_real_inner_product.
+  - now rewrite <- Rplus_0_l at 1; apply Rplus_le_compat_r, pow2_ge_0.
+  - now apply hermitian_deviation_anticommutator.
+  - now apply hermitian_neg_i_commutator.
 Qed.
 
 Local Close Scope R_scope.
