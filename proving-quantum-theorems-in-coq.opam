@@ -8,7 +8,7 @@ computing."""
 build: ["dune" "build" "-p" name "-j" jobs]
 depends: [
   "dune" {>= "3.5"}
-  "coq" {>= "8.16" & <= "8.19"}
-  "coq-quantumlib" {>= "1.6.0"}
+  "coq" {>= "8.16" & < "8.21"}
+  "coq-quantumlib" {>= "1.8.0"}
 ]
 
