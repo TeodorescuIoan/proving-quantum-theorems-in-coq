@@ -7,8 +7,8 @@ Local Open Scope R_scope.
 (** Basic definitions *)
 
 (* The expected value of observing A repeatedly on the same state x *)
-Definition expectedval {n : nat} (x : Vector n) (A : Square n) : R := 
-  fst ⟨x, A × x⟩.
+Definition expectedval {n : nat} (x : Vector n) (A : Square n) : C := 
+  ⟨x, A × x⟩.
    
 (* Δ(x,A) = A - ⟨x, A × x⟩ * I *)
 Definition deviation {n : nat} (x : Vector n) (A : Square n) : Square n := 
@@ -16,7 +16,7 @@ Definition deviation {n : nat} (x : Vector n) (A : Square n) : Square n :=
 
 (* The expected value of the deviation squared *)
 (* Var(x, A) = expectedval (Δ(x,A))² = ⟨x, (A - ⟨x, A × x⟩ * I)² × x⟩*)
-Definition variance {n : nat} (x : Vector n) (A : Square n) : R := 
+Definition variance {n : nat} (x : Vector n) (A : Square n) : C := 
   expectedval x (Mmult_n 2 (deviation x A)).
 
 Definition commutator {n : nat} (A B : Square n) : Square n :=
@@ -45,6 +45,28 @@ Proof.
   autorewrite with C_db R_db.
   rewrite sqrt_def, <- !Rsqr_def; [lra |].
   now apply Rplus_le_le_0_compat; apply Rle_0_sqr.
+Qed.
+
+(* A number being equal to its complex conjugate implies it is purely imaginary *)
+Theorem Cconj_eq_neg_implies_imaginary :
+  forall (r : C), r ^* = Copp r -> fst r = 0.
+Proof.
+  intros [a b] HCconjneq.
+  unfold Cconj in *.
+  simpl in *.
+  apply (f_equal fst) in HCconjneq.
+  simpl in *.
+  now lra.
+Qed.
+
+Theorem Cmult_real_fst_distributivity : forall (r q : C), snd r = 0 -> snd q = 0 -> fst r * fst q = fst (Cmult r q).
+Proof.
+  intros * Hrreal Hqreal.
+  unfold Cmult.
+  autorewrite with R_db.
+  f_equal.
+  simpl.
+  nra.
 Qed.
 
 (** Lemmas about hermitian operators, commutators and variances *)
@@ -88,6 +110,18 @@ Proof.
   - now apply I_hermitian.
 Qed.
 
+(* The expected value of an antihermitian operator is purely imaginary *)
+Theorem antihermitian_expectedval_imaginary :
+  forall {n : nat} (x : Vector n) (A : Square n),
+  A† = -C1 .* A -> fst ⟨x, A × x⟩ = 0.
+Proof.
+  intros * Hantiherm.
+  apply Cconj_eq_neg_implies_imaginary.
+  rewrite <- inner_product_conj_sym, inner_product_adjoint_l,
+    Hantiherm, Mscale_mult_dist_l, inner_product_scale_r.
+  ring.
+Qed.
+
 (* Δx(A) * Δx(B) + Δx(B) * Δx(A) is hermitian *)
 Lemma hermitian_deviation_anticommutator : 
   forall {n : nat} (x : Vector n) (A B : Square n), hermitian A -> hermitian B -> 
@@ -129,13 +163,13 @@ Qed.
 (* ⟨x, (A - ⟨x, A × x⟩ * I)² × x⟩ = || (A - ⟨x, A × x⟩ * I) × x ||² *)
 Lemma variance_norm_sq_eq : forall {n : nat} (x : Vector n) (A : Square n),
   WF_Matrix A -> hermitian A -> 
-    variance x A = fst ⟨deviation x A × x, deviation x A × x⟩.
+    variance x A = ⟨deviation x A × x, deviation x A × x⟩.
 Proof.
   intros.
   unfold variance, deviation, expectedval, Mmult_n.
   rewrite Mmult_1_r, Mmult_assoc; auto with wf_db.
   rewrite inner_product_adjoint_switch.
-  rewrite (hermitian_deviation_generalized A); auto.
+  rewrite (hermitian_deviation_generalized A); try auto.
   now apply hermitian_implies_real_inner_product.
 Qed.
 
@@ -193,22 +227,61 @@ Proof.
   - now apply hermitian_implies_real_inner_product.
 Qed.
 
+Theorem imaginary_commutator_expectedval_sq_eq_Cmod_expectedval_sq :
+  forall {n : nat} (x : Vector n) (A B : Square n),
+    WF_Matrix A -> WF_Matrix B -> hermitian A -> hermitian B ->
+      fst ⟨x, -Ci .* commutator A B × x⟩^2 = Cmod ⟨x, commutator A B × x⟩^2.
+Proof.
+  intros * WFA WFB HHermA HHermB.
+  unfold Cmod.
+  assert (fst ⟨ x, commutator A B × x ⟩ = 0) as Himag.
+  {
+    rewrite antihermitian_expectedval_imaginary; try auto.
+    unfold commutator.
+    unfold hermitian in HHermA, HHermB.
+    rewrite Mscale_plus_distr_r, Mplus_adjoint, <- !Mscale_mult_dist_l,
+      !Mmult_adjoint, !HHermA, !HHermB, !Mscale_adj.
+    autorewrite with C_db.
+    rewrite !HHermB, Mscale_mult_dist_r, Mplus_comm.
+    f_equal; [now rewrite Mscale_mult_dist_l |].
+    rewrite Mscale_assoc.
+    autorewrite with C_db.
+    now rewrite Mscale_1_l.
+  }
+  rewrite Himag.
+  simpl.
+  rewrite Rmult_0_l, Rplus_0_l, !Rmult_1_r,
+    Mscale_mult_dist_l, inner_product_scale_r.
+  autorewrite with C_db.
+  destruct (⟨ x, commutator A B × x ⟩).
+  simpl in *.
+  autorewrite with R_db.
+  rewrite sqrt_sqrt; auto.
+  now nra.
+Qed.
+
+Local Open Scope C_scope.
+
 Theorem Heisenberg_Uncertainty_Principle : 
   forall {n : nat} (x : Vector n) (A B : Square n),
     WF_Matrix A -> WF_Matrix B -> hermitian A -> hermitian B ->
-      (variance x A) * (variance x B) >= / 4 * fst (⟨x, -Ci .* commutator A B × x⟩)^2.
+      fst ((variance x A) * (variance x B)) >= / 4 * (Cmod ⟨x, commutator A B × x⟩)^2.
 Proof.
   intros * WFA WFB HHermA HHermB.
   apply Rle_ge.
   rewrite !variance_norm_sq_eq; auto.
   generalize (Cauchy_Schwartz_ver1 (deviation x A × x) (deviation x B × x)).
   rewrite interm_Uncertainty_Principle; auto.
+  rewrite (Cmult_real_fst_distributivity ⟨ deviation x A × x, deviation x A × x ⟩ ⟨ deviation x B × x, deviation x B × x ⟩); try now rewrite norm_real.
   apply Rle_trans, Rmult_le_compat_l; [lra | ].
   rewrite Cmod_pow2_reals; try apply hermitian_implies_real_inner_product.
-  - now rewrite <- Rplus_0_l at 1; apply Rplus_le_compat_r, pow2_ge_0.
+  - rewrite <- imaginary_commutator_expectedval_sq_eq_Cmod_expectedval_sq by auto.
+    now rewrite <- Rplus_0_l at 1; apply Rplus_le_compat_r, pow2_ge_0.
   - now apply hermitian_deviation_anticommutator.
   - now apply hermitian_neg_i_commutator.
 Qed.
+
+Local Close Scope C_scope.
 
 Local Close Scope R_scope.
 
