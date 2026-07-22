@@ -272,7 +272,7 @@ Proof.
   rewrite !variance_norm_sq_eq; auto.
   generalize (Cauchy_Schwartz_ver1 (deviation x A × x) (deviation x B × x)).
   rewrite interm_Uncertainty_Principle; auto.
-  rewrite (Cmult_real_fst_distributivity ⟨ deviation x A × x, deviation x A × x ⟩ ⟨ deviation x B × x, deviation x B × x ⟩); try now rewrite norm_real.
+  rewrite Cmult_real_fst_distributivity; try now rewrite norm_real.
   apply Rle_trans, Rmult_le_compat_l; [lra | ].
   rewrite Cmod_pow2_reals; try apply hermitian_implies_real_inner_product.
   - rewrite <- imaginary_commutator_expectedval_sq_eq_Cmod_expectedval_sq by auto.
