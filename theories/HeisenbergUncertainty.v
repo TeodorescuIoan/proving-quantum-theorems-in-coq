@@ -34,19 +34,6 @@ Proof. now unfold Cmod; rewrite pow2_sqrt; simpl; lra. Qed.
 Lemma Cconj_complex_real : forall (r : C), snd r = 0 -> r ^* = r.
 Proof. now intros [] [=]; lca. Qed.
 
-(* Mathematical version of the complex modulus formula *)
-Lemma Cmod_pow2_reals : 
-  forall (x y : C), snd x = 0 -> snd y = 0 -> 
-    Cmod (x + Ci * y) ^2 = (fst x)^2 + (fst y)^2.
-Proof.
-  intros [] [] [=->] [=->].
-  unfold Cmod, Ci, snd in *.
-  simpl.
-  autorewrite with C_db R_db.
-  rewrite sqrt_def, <- !Rsqr_def; [lra |].
-  now apply Rplus_le_le_0_compat; apply Rle_0_sqr.
-Qed.
-
 (* A number being equal to its complex conjugate implies it is purely imaginary *)
 Theorem Cconj_eq_neg_implies_imaginary :
   forall (r : C), r ^* = Copp r -> fst r = 0.
@@ -274,11 +261,19 @@ Proof.
   rewrite interm_Uncertainty_Principle; auto.
   rewrite Cmult_real_fst_distributivity; try now rewrite norm_real.
   apply Rle_trans, Rmult_le_compat_l; [lra | ].
-  rewrite Cmod_pow2_reals; try apply hermitian_implies_real_inner_product.
-  - rewrite <- imaginary_commutator_expectedval_sq_eq_Cmod_expectedval_sq by auto.
-    now rewrite <- Rplus_0_l at 1; apply Rplus_le_compat_r, pow2_ge_0.
-  - now apply hermitian_deviation_anticommutator.
-  - now apply hermitian_neg_i_commutator.
+  unfold Cmod at 2.
+  simpl snd.
+  rewrite hermitian_implies_real_inner_product by 
+    now apply hermitian_deviation_anticommutator.
+  rewrite hermitian_implies_real_inner_product by
+    now apply hermitian_neg_i_commutator.
+  autorewrite with R_db.
+  rewrite <- imaginary_commutator_expectedval_sq_eq_Cmod_expectedval_sq
+    by auto.
+  rewrite <- Rplus_0_l at 1. 
+  rewrite pow2_sqrt.
+  apply Rplus_le_compat_r, pow2_ge_0.
+  apply Rplus_le_le_0_compat; rewrite <- Rsqr_pow2; apply Rle_0_sqr.
 Qed.
 
 Local Close Scope C_scope.
